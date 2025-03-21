@@ -1,5 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
+import matplotlib.pyplot as plt
+import re
 
 url = "https://en.wikipedia.org/wiki/University_of_Calgary"
 try:
@@ -12,23 +14,24 @@ except Exception as e:
 
 print(soup.prettify())
 
-numheadings = len(soup.find_all('h1')) + len(soup.find_all('h2')) + len(soup.find_all('h3')) + len(soup.find_all('h4')) + len(soup.find_all('h5')) + len(soup.find_all('h6'))
-print("Number of headings:", numheadings)
-print("Number of links:", len(soup.find_all('a')))
-print("Number of paragraphs:", len(soup.find_all('p')))
+headings = len(soup.find_all('h1')) + len(soup.find_all('h2')) + len(soup.find_all('h3')) + len(soup.find_all('h4')) + len(soup.find_all('h5')) + len(soup.find_all('h6'))
+links = len(soup.find_all('a'))
+paragraphs = len(soup.find_all('p'))
+print("Number of headings:", headings)
+print("Number of links:", links)
+print("Number of paragraphs:", paragraphs)
 
 key = input("Please enter a keyword to search for on the Webpage: ").lower()
-page = soup.prettify().lower().split()
+page = soup.get_text().lower()
+words = re.findall(r'\b\w+\b', page)
 count = 0
-for i in page:
+for i in words:
     if i == key: # Ask about this
         count+= 1
 print("Number of occurrences:", count)
 
-content = soup.get_text().split()
 dict = {}
-for i in content:
-    i = i.lower()
+for i in words:
     if i in dict:
         dict[i] += 1
     else:
@@ -46,10 +49,24 @@ for key, value in dict.items():
             words.pop()
             words.insert(i, key)
             break
+print("\nMost common words in the webpage:")
+for i in range(5):
+    print(f"{words[i]}: {counts[i]} times")
 
-print(words)
-print(counts)
+webpage = soup.get_text().split("\n")
+max = ""
+for i in webpage:
+    if len(i) > len(max):
+        max = i
+print(f"Longest paragraph: {max}")
 
+import matplotlib.pyplot as plt
+labels = ['Headings', 'Links', 'Paragraphs']
+values = [headings, links, paragraphs]
+plt.bar(labels, values)
+plt.title('Group 17')
+plt.ylabel('Count')
+plt.show()
             
     
 
